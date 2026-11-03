@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ScrapDesk add-in for Excel.
+  Points to https://nomaan-g.github.io/scrapdesk (testing with the Demo workbook only).
+  For a client, change this address to where their IT hosts the panel files.
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>9b2e4c71-5a3d-4e8f-a1c6-3d7f0b9e2a54</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>ScrapDesk</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="ScrapDesk"/>
+  <Description DefaultValue="Fill Purchase and Sales rows from WhatsApp deal messages, open contracts, check contract and BL PDFs against their rows, and log payments."/>
+  <IconUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-64.png"/>
+  <SupportUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/"/>
+  <AppDomains>
+    <AppDomain>https://api.anthropic.com</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook"/>
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="ExcelApi" MinVersion="1.7"/>
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://nomaan-g.github.io/scrapdesk/taskpane.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="Taskpane.Url"/>
+          </GetStarted>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="ScrapDesk.Group">
+                <Label resid="Group.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16"/>
+                  <bt:Image size="32" resid="Icon.32"/>
+                  <bt:Image size="80" resid="Icon.80"/>
+                </Icon>
+                <Control xsi:type="Button" id="ScrapDesk.Open">
+                  <Label resid="Button.Label"/>
+                  <Supertip>
+                    <Title resid="Button.Label"/>
+                    <Description resid="Button.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ScrapDeskPane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://nomaan-g.github.io/scrapdesk/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="ScrapDesk is ready"/>
+        <bt:String id="Group.Label" DefaultValue="ScrapDesk"/>
+        <bt:String id="Button.Label" DefaultValue="ScrapDesk"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Open the trading workbook, then click ScrapDesk on the Home tab."/>
+        <bt:String id="Button.Tooltip" DefaultValue="Open the ScrapDesk panel: deal entry, contracts, document check, payments."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
