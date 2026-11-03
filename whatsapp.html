@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScrapDesk WhatsApp</title>
+<style>nav [data-tab="contract"],nav [data-tab="check"],nav [data-tab="pay"],nav [data-tab="issues"]{display:none!important}</style>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="core.js"></script>
+<style>
+:root{--bg:#f3f5f6;--surface:#fff;--s2:#e7ebee;--ink:#141d26;--muted:#56636f;--line:#d0d7dd;--accent:#1f5f8b;--accent-soft:#dbe8f2;--ok:#2e7a3a;--ok-soft:#dcefdf;--warn:#8a6304;--warn-soft:#f6ecd0;--bad:#b0281f;--bad-soft:#f7dcd9;--wa:#e7f6df}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+header{background:var(--surface);border-bottom:1px solid var(--line);padding:10px 12px 0}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}.brand img{width:22px;height:22px}
+.mode{margin-left:auto;font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--s2);color:var(--muted)}.mode.live{background:var(--ok-soft);color:var(--ok)}
+nav{display:flex;margin-top:8px;overflow-x:auto}
+nav button{border:0;background:none;padding:8px 9px;font:inherit;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+nav .b{background:var(--bad);color:#fff;border-radius:999px;font-size:10px;padding:0 5px;margin-left:3px}
+main{padding:12px;display:grid;gap:10px}
+section{display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px;display:grid;gap:8px}
+h2{font-size:14px;margin:0}p.help{margin:0;color:var(--muted);font-size:12px}
+label{display:grid;gap:3px;font-size:11.5px;color:var(--muted)}
+textarea,input,select{font:inherit;color:var(--ink);width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:#fff}
+textarea{font-family:Consolas,Menlo,monospace;font-size:12px;resize:vertical}
+.wa textarea{background:var(--wa)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.row>label{flex:1;min-width:120px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 11px;font:inherit;font-weight:600;cursor:pointer;color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.small{padding:3px 8px;font-size:12px;font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.status{font-size:12px;color:var(--muted)}.status.err{color:var(--bad)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.grid2 label input,.grid2 label select{padding:4px 6px;font-size:12px}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--s2);color:var(--muted)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.chip.bad{background:var(--bad-soft);color:var(--bad)}.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.check{display:grid;grid-template-columns:18px 1fr;gap:6px;padding:6px 0;border-top:1px solid var(--line);font-size:12px}.check:first-child{border-top:0}
+.check i{font-style:normal;font-weight:700;text-align:center;border-radius:50%;width:18px;height:18px;line-height:18px;font-size:11px}
+.pass i{background:var(--ok-soft);color:var(--ok)}.fail i{background:var(--bad-soft);color:var(--bad)}.warn i{background:var(--warn-soft);color:var(--warn)}
+.check span{color:var(--muted);display:block;overflow-wrap:anywhere}
+.drop{border:2px dashed var(--line);border-radius:8px;padding:14px;text-align:center;display:grid;gap:6px;justify-items:center}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.issue{border-left:4px solid var(--warn);background:var(--surface);border-radius:0 8px 8px 0;border:1px solid var(--line);border-left-width:4px;padding:8px 10px;display:grid;gap:3px}
+.issue b{font-size:12.5px}.issue .m{font-size:12px;color:var(--muted)}
+pre{white-space:pre-wrap;font:12px/1.45 Consolas,Menlo,monospace;background:var(--s2);padding:8px;border-radius:6px;margin:0;max-height:240px;overflow:auto}
+.toast{position:fixed;left:12px;right:12px;bottom:12px;background:var(--ink);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;opacity:0;transition:opacity .2s;pointer-events:none}.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="icon-32.png" alt="">ScrapDesk WhatsApp <span class="mode" id="mode">Preview mode</span></div>
+  <nav role="tablist">
+    <button role="tab" data-tab="deal" aria-selected="true">WhatsApp → row</button>
+    <button role="tab" data-tab="contract">Contract</button>
+    <button role="tab" data-tab="check">Check PDF</button>
+    <button role="tab" data-tab="pay">Payment</button>
+    <button role="tab" data-tab="issues">Issues<span class="b" id="issueCount" hidden></span></button>
+    <button role="tab" data-tab="settings">Settings</button>
+  </nav>
+</header>
+<main>
+
+<!-- NEW DEAL -->
+<section data-view="deal">
+  <div class="card wa">
+    <h2>WhatsApp message → Purchase or Sales row</h2>
+    <p class="help">Paste the deal message. A purchase becomes a new row in Purchase; a sale becomes a row in Sales linked to its purchase Ref.</p>
+    <textarea id="wa" rows="8" spellcheck="false"></textarea>
+    <div class="row"><button class="btn primary" id="readBtn">Read</button><button class="btn" id="readAI">Read with AI</button><span style="flex:1"></span>
+      <button class="btn small" data-s="p">Sample buy</button><button class="btn small" data-s="s">Sample sale</button><button class="btn small" data-s="m">Messy</button></div>
+    <div class="status" id="readStatus"></div>
+  </div>
+  <div class="card" id="preview" hidden>
+    <div class="row"><h2>Check, then write</h2><span id="kind"></span></div>
+    <div class="grid2" id="fields"></div>
+    <div class="row"><button class="btn primary" id="writeBtn">Write row</button><button class="btn" id="copyBtn" title="Copies the row so you can paste it into column A of the Purchase or Sales sheet">Copy row for Excel</button><span class="status" id="writeStatus"></span></div>
+    <p class="help">No panel inside Excel? Click <b>Copy row for Excel</b>, click column A of the first empty row in Purchase (or Sales), and paste.</p>
+  </div>
+</section>
+
+<!-- CONTRACT -->
+<section data-view="contract" hidden>
+  <div class="card">
+    <h2>Make a contract</h2>
+    <p class="help">Fills the Contract sheet from the Purchase or Sales row, in the company format. The value is always QTY × Rate.</p>
+    <div class="row"><label>Ref<select id="ctRef"></select></label><label>Side<select id="ctSide"><option>Purchase</option><option>Sales</option></select></label></div>
+    <div class="status" id="ctInfo"></div>
+    <div class="row"><button class="btn primary" id="ctOpen">Open contract</button><span class="status" id="ctStatus"></span></div>
+  </div>
+</section>
+
+<!-- CHECK PDF -->
+<section data-view="check" hidden>
+  <div class="card">
+    <h2>Check a contract or BL PDF</h2>
+    <p class="help">Drop the PDF. It is checked on its own and against its row in Purchase or Sales: quantity, rate, value, port, terms, containers.</p>
+    <div class="drop" id="drop"><b>Drop PDF here</b><label class="btn primary" style="display:inline-block;color:#fff">Choose PDF<input type="file" id="file" accept="application/pdf,.pdf" hidden></label></div>
+    <label>Compare with Ref<select id="ckRef"><option value="">Find automatically</option></select></label>
+    <div class="status" id="ckStatus"></div>
+  </div>
+  <div class="card" id="ckRes" hidden>
+    <div class="row"><h2 id="ckTitle">Result</h2><span id="ckSum"></span></div>
+    <div id="ckList"></div>
+  </div>
+  <div class="card" id="ckMailC" hidden>
+    <div class="row"><h2>Correction request</h2><span style="flex:1"></span><button class="btn small" id="ckCopy">Copy</button></div>
+    <pre id="ckMail"></pre>
+  </div>
+</section>
+
+<!-- PAYMENT -->
+<section data-view="pay" hidden>
+  <div class="card">
+    <h2>Log a payment</h2>
+    <p class="help">Adds a line to Payments. Balances on Purchase, Sales, Position and Summary update.</p>
+    <label>Ref<select id="payRef"></select></label>
+    <label>Direction<select id="payDir"><option>Received from buyer</option><option>Paid to supplier</option></select></label>
+    <div class="row"><label>Amount (deal currency)<input id="payAmt" type="number" min="0" step="0.01"></label><label>Date<input id="payDate" type="date"></label></div>
+    <label>Bank reference<input id="payBank" type="text"></label>
+    <div class="status" id="payInfo"></div>
+    <div class="row"><button class="btn primary" id="payBtn">Add to Payments</button><span class="status" id="payStatus"></span></div>
+  </div>
+</section>
+
+<!-- ISSUES -->
+<section data-view="issues" hidden>
+  <div class="row"><h2>Rows to check</h2><span style="flex:1"></span><button class="btn small" id="isRefresh">Refresh</button></div>
+  <p class="help">From the Check columns of Purchase and Sales.</p>
+  <div id="isList" style="display:grid;gap:8px"></div>
+</section>
+
+<!-- SETTINGS -->
+<section data-view="settings" hidden>
+  <div class="card">
+    <h2>AI for messy messages and scanned PDFs</h2>
+    <p class="help">Optional. Uses the Claude API with a key kept on this computer only, never in the workbook. For company-wide use, route calls through a small server instead.</p>
+    <label>Claude API key<input id="apiKey" type="password" placeholder="sk-ant-..." autocomplete="off"></label>
+    <label>Model<input id="model" type="text"></label>
+    <div class="row"><button class="btn primary" id="saveSet">Save</button><span class="status" id="setStatus"></span></div>
+  </div>
+</section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DAY=864e5; const TODAY=new Date(); TODAY.setHours(0,0,0,0);
+const toSerial=d=>Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(1899,11,30))/DAY);
+const fmtN=(n,d=2)=>n==null||n===''?'—':Number(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400);}
+async function copy(text){try{await navigator.clipboard.writeText(text);toast('Copied');}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied');}catch(_){toast('Select and copy the text');}ta.remove();}}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+
+/* ---------- workbook layout (Trading Workbook.xlsx) ---------- */
+const PUR={sheet:'Purchase',first:2,last:501,lastCol:'AH',cols:['Ref','PUR_THROUGH','Sale_Through','Status','ORIGIN','Contract Date','Loading Date','SUPPLIER CONTRACT NO','SUPPLIER','GRADE','Materials','Teus','QTY','CUY','Rate','EX','AMOUNT','PCT','Buyer','Terms','POD','FPOD','PAY TERMS','Agent'],check:33,open:28};
+const SAL={sheet:'Sales',first:2,last:801,lastCol:'AB',cols:['Ref No','PUR_THROUGH','Sale_Through','Status','ORIGIN','Destination','DATE','PL Date','SCT NO.','Buyer','GRADE','ITEM','QTY','Teus','S.RATE','Agent','Terms','POD','FPOD','PMT_Terms'],check:27};
+const ci=(T,name)=>T.cols.indexOf(name);
+const colL=n=>{let s='';n++;while(n){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;};
+const GRADES=[[/hms|heavy\s*melt/i,'HMS 1&2 (80:20)','Ferrous'],[/lms|light\s*melt/i,'LMS Bundles','Ferrous'],[/shred|211/i,'Shredded (ISRI 211)','Ferrous'],[/rail/i,'Rails R50','Ferrous'],[/cast\s*iron|252/i,'Cast iron (ISRI 252)','Ferrous'],[/\bhr\b|hot\s*roll|hrc/i,'Secondary HR coils','Ferrous'],[/zinc|saves|zamak/i,'Zinc die cast (Saves)','Non-ferrous'],[/copper|birch|cliff|berry|candy/i,'Copper Birch/Cliff','Non-ferrous'],[/zorba|tense|taint|tabor|alumin/i,'Aluminium Tense','Non-ferrous'],[/stainless|304/i,'Stainless steel 304','Ferrous']];
+const gradeOf=s=>{const g=GRADES.find(x=>x[0].test(s||''));return g?{name:g[1],mat:g[2]}:null;};
+const COUNTRY_OF=p=>/qasim|karachi/i.test(p)?'Pakistan':/mundra|nhava|kandla|chennai|kolkata|pipavav|hazira/i.test(p)?'India':/jebel|dubai|sharjah/i.test(p)?'UAE':'';
+
+/* ---------- data access ---------- */
+const S=(y,m,d)=>toSerial(new Date(y,m-1,d));
+const DEMO={
+ Purchase:[['CA-659','SG','DXB','Open','Europe',S(2026,10,21),S(2026,11,5),'PC/251/2026','Northern Steel Ltd','Rails R50','Ferrous',11,300,'USD',367,'',110100,'','Riverside Iron & Steel Ltd','CFR','Port Qasim','Port Qasim','100% against copy docs',''],
+  ['CA-663','SG','SG','Open','UK',S(2026,10,24),'','PC/253/2026','Atlantic Scrap Exports','HMS 1&2 (80:20)','Ferrous',11,275,'USD',340,'',94000,'','','CFR','Port Qasim','Port Qasim','10% advance balance CAD','']],
+ Sales:[['CA-659','SG','DXB','Open','Europe','Pakistan',S(2026,10,22),'','GSM/SC/2490','Riverside Iron & Steel Ltd','Rails R50','Ferrous',300,11,385,'','CFR','Port Qasim','Port Qasim','20% advance balance 80% CAD']],
+ checks:{Purchase:{3:'AMOUNT ≠ QTY×Rate (diff 500.00); Not sold yet;'},Sales:{}},
+ payments:[], entities:['SG','DXB'], company:{SG:'SAMPLE TRADING PTE LTD',DXB:'SAMPLE SCRAP & METAL TRADING LLC'}};
+let LIVE=false;
+async function xl(fn){return Excel.run(fn);}
+const DB={
+  async rows(T){ // returns [{row, v:[inputs], check, extra:[helpers]}]
+    if(!LIVE){const arr=DEMO[T.sheet];return arr.map((v,i)=>({row:T.first+i,v,check:(DEMO.checks[T.sheet]||{})[T.first+i]||'OK',open:T===PUR?0:null}));}
+    return xl(async ctx=>{const r=ctx.workbook.worksheets.getItem(T.sheet).getRange(`A${T.first}:${T.lastCol}${T.last}`);r.load('values');await ctx.sync();
+      return r.values.map((v,i)=>({row:T.first+i,v:v.slice(0,T.cols.length),check:v[T.check],open:T.open!=null?v[T.open]:null})).filter(x=>x.v[0]!==''&&x.v[0]!=null);}); },
+  async firstEmpty(T){ if(!LIVE)return T.first+DEMO[T.sheet].length;
+    return xl(async ctx=>{const r=ctx.workbook.worksheets.getItem(T.sheet).getRange(`A${T.first}:A${T.last}`);r.load('values');await ctx.sync();const i=r.values.findIndex(x=>x[0]===''||x[0]==null);return i<0?null:T.first+i;}); },
+  async writeRow(T,row,v){ if(!LIVE){const i=row-T.first;DEMO[T.sheet][i]=v;return;}
+    return xl(async ctx=>{const ws=ctx.workbook.worksheets.getItem(T.sheet);ws.getRange(`A${row}:${colL(T.cols.length-1)}${row}`).values=[v];ws.activate();ws.getRange(`A${row}:${colL(T.cols.length-1)}${row}`).select();await ctx.sync();}); },
+  async setCell(sheet,addr,val){ if(!LIVE){if(sheet==='Purchase'){const m=addr.match(/([A-Z]+)(\d+)/);const c=m[1].charCodeAt(0)-65;DEMO.Purchase[+m[2]-2][c]=val;}return;}
+    return xl(async ctx=>{ctx.workbook.worksheets.getItem(sheet).getRange(addr).values=[[val]];await ctx.sync();}); },
+  async entities(){ if(!LIVE)return DEMO.entities; return xl(async ctx=>{const r=ctx.workbook.worksheets.getItem('Lists').getRange('A2:A20');r.load('values');await ctx.sync();return r.values.map(x=>x[0]).filter(Boolean);}); },
+  async company(code){ if(!LIVE)return DEMO.company[code]||'our company'; return xl(async ctx=>{const r=ctx.workbook.worksheets.getItem('Settings').getRange('A5:B8');r.load('values');await ctx.sync();const f=r.values.find(x=>x[0]===code)||r.values[0];return f[1]||'our company';}); },
+  async openContract(ref,side){ if(!LIVE)return toast(`Would open Contract sheet for ${ref} (${side})`);
+    return xl(async ctx=>{const ws=ctx.workbook.worksheets.getItem('Contract');ws.getRange('C4:C5').values=[[ref],[side]];ws.activate();ws.getRange('B8').select();await ctx.sync();}); },
+  async addPayment(p){ if(!LIVE){DEMO.payments.push(p);return 2+DEMO.payments.length-1;}
+    return xl(async ctx=>{const ws=ctx.workbook.worksheets.getItem('Payments');const r=ws.getRange('A2:A801');r.load('values');await ctx.sync();const i=r.values.findIndex(x=>x[0]===''||x[0]==null);if(i<0)throw new Error('Payments sheet is full.');const row=2+i;ws.getRange(`A${row}:E${row}`).values=[[p.date,p.ref,p.dir,p.amt,p.bank]];ws.activate();ws.getRange(`A${row}:F${row}`).select();await ctx.sync();return row;}); },
+  async paid(ref,dir){ if(!LIVE)return DEMO.payments.filter(p=>p.ref===ref&&p.dir===dir).reduce((a,p)=>a+p.amt,0);
+    return xl(async ctx=>{const r=ctx.workbook.worksheets.getItem('Payments').getRange('A2:D801');r.load('values');await ctx.sync();return r.values.filter(x=>x[1]===ref&&x[2]===dir).reduce((a,x)=>a+(+x[3]||0),0);}); },
+  async select(sheet,addr){ if(!LIVE)return toast(`Would select ${sheet}!${addr}`); return xl(async ctx=>{const ws=ctx.workbook.worksheets.getItem(sheet);ws.activate();ws.getRange(addr).select();await ctx.sync();}); }
+};
+const sheetErr=e=>{const m=String(e&&e.message||e);return /ItemNotFound|not exist/i.test(m)?'This workbook is missing the Purchase / Sales sheets. Open the trading workbook and try again.':m;};
+
+/* ---------- AI ---------- */
+const DEFAULT_MODEL='claude-sonnet-4-5';
+async function claude(content){const key=store('sd_key');if(!key)throw new Error('Add a Claude API key in Settings to use AI.');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:store('sd_model')||DEFAULT_MODEL,max_tokens:2500,messages:[{role:'user',content}]})});
+  const j=await res.json().catch(()=>({}));if(!res.ok)throw new Error((j.error&&j.error.message)||('AI request failed ('+res.status+')'));
+  const t=(j.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');const m=t.match(/\{[\s\S]*\}/);if(!m)throw new Error('AI reply could not be read.');return JSON.parse(m[0]);}
+
+/* ---------- tabs ---------- */
+$$('nav button').forEach(b=>b.addEventListener('click',()=>{$$('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));$$('[data-view]').forEach(v=>v.hidden=v.dataset.view!==b.dataset.tab);
+  if(['contract','check','pay'].includes(b.dataset.tab))loadRefs(); if(b.dataset.tab==='issues')loadIssues();}));
+
+/* ============ NEW DEAL ============ */
+const SAMPLES={p:`*PURCHASE CONFIRMED*\nSupplier: Atlantic Scrap Exports\nMaterial: Shredded ISRI 211\nQty: 250 MT (10x20') +/-10%\nPrice: EUR 322/MT CFR Port Qasim\nEX: 1.085\nOrigin: UK\nPayment: 10% advance balance CAD\nThrough: SG / DXB\nShipment: within 30 days`,
+ s:`*SALE CONFIRMED*\nBuyer: Indus Steel Mills\nRef: CA-663\nQty: 275 MT\nPrice: USD 362/MT CFR Port Qasim\nPayment: 100% CAD`,
+ m:`done bhai.. hms 80:20 11 cntrs frm atlantic uk 275mt @340 cnf qasim, 10% adv bal cad. sold to indus @362 same terms`};
+$$('[data-s]').forEach(b=>b.addEventListener('click',()=>{$('#wa').value=SAMPLES[b.dataset.s];$('#preview').hidden=true;$('#readStatus').textContent='';}));
+function parseMsg(text){
+  const first=text.split('\n')[0];const o={kind:/sale|sold/i.test(first)?'sale':/purchase|bought/i.test(first)?'purchase':null};
+  for(const raw of text.split('\n')){const m=raw.match(/^\s*\*?([A-Za-z][A-Za-z \/.]{1,18}?)\*?\s*:\s*(.+?)\s*$/);if(!m)continue;const k=m[1].toLowerCase().trim(),v=m[2].trim();
+    if(/^(supplier|seller|from)$/.test(k))o.supplier=v;else if(/^(buyer|customer)$/.test(k))o.buyer=v;else if(/^(material|grade|item)$/.test(k))o.grade=v;
+    else if(/^(qty|quantity)$/.test(k))o._q=v;else if(/^(price|rate)$/.test(k))o._p=v;else if(/^origin$/.test(k))o.origin=v;else if(/^(payment|terms|payment terms)$/.test(k))o.payment=v;
+    else if(/^(through|via)$/.test(k)){const p=v.split(/[\/,>-]+/).map(s=>s.trim().toUpperCase());o.purThrough=p[0];o.saleThrough=p[1]||p[0];}
+    else if(/^(ref|ref no|against)$/.test(k))o.ref=v.toUpperCase();else if(/^(shipment|loading)$/.test(k))o.shipment=v;else if(/^(pod|destination|port)$/.test(k))o.pod=v;else if(/^agent$/.test(k))o.agent=v;else if(/^(ex|exchange rate|fx)$/.test(k))o.ex=+v.replace(/[^\d.]/g,'')||null;}
+  if(o._q){const q=o._q.match(/([\d,.]+)\s*(mt|ton)/i);if(q)o.qty=+q[1].replace(/,/g,'');const c=o._q.match(/(\d+)\s*x\s*(20|40)/i);if(c)o.teus=+c[1];}
+  if(o._p){const p=o._p.match(/(usd|eur|euro|gbp|aed|sgd|\$|€)\s*([\d,.]+)/i);if(p){o.rate=+p[2].replace(/,/g,'');const c=p[1].toUpperCase();o.cuy=c==='$'?'USD':c==='€'||c==='EURO'?'EUR':c;}const i=o._p.match(/\b(CFR|CNF|C&F|CIF|FOB|EXW|FCA|FAS)\b\s*([A-Za-z ]+)?/i);if(i){o.terms=i[1].toUpperCase().replace(/CNF|C&F/,'CFR');if(i[2]&&!o.pod)o.pod=i[2].trim();}}
+  delete o._q;delete o._p;if(o.pod)o.pod=o.pod.replace(/\bqasim\b/i,'Port Qasim').replace(/port port/i,'Port').replace(/\b\w/g,c=>c.toUpperCase());return o;
+}
+let P=null, REFS=[];
+const PF=[['supplier','Supplier'],['grade','Grade'],['qty','QTY (MT)'],['teus','Teus'],['rate','Rate per MT'],['cuy','CUY (currency)'],['ex','EX (to USD)'],['terms','Terms'],['pod','POD'],['origin','Origin'],['payment','PAY TERMS'],['purThrough','PUR_THROUGH'],['saleThrough','Sale_Through'],['contractNo','Supplier contract no.']];
+const SF=[['ref','Ref No (purchase)'],['buyer','Buyer'],['qty','QTY (MT)'],['rate','S.RATE (USD per MT)'],['terms','Terms'],['pod','POD'],['payment','PMT_Terms'],['sct','SCT NO.'],['agent','Agent']];
+const REQ={purchase:['supplier','grade','qty','rate','terms','pod','payment'],sale:['ref','buyer','qty','rate','payment']};
+async function showParsed(o,src){
+  o.kind=o.kind||(o.buyer&&!o.supplier?'sale':'purchase');if(o.kind==='purchase'){o.cuy=(o.cuy||'USD').toUpperCase();if(o.cuy==='USD')o.ex=o.ex||1;}P=o;
+  const g=gradeOf(o.grade);if(g)o.grade=g.name;
+  let ents=['SG','DXB'];try{ents=await DB.entities();}catch(_){}
+  if(o.kind==='sale'){ try{const pr=await DB.rows(PUR); REFS=pr;
+      if(!o.ref){const m=pr.filter(r=>+r.open>0.5||r.v[ci(PUR,'Buyer')]==='');const k=(o.grade||'')+' '+(o.supplier||'');const hit=m.find(r=>o.supplier&&String(r.v[8]).toLowerCase().includes(o.supplier.toLowerCase().split(' ')[0]))||m.find(r=>gradeOf(k)&&gradeOf(k).name===r.v[9])||m[0];if(hit)o.ref=hit.v[0];}
+      const pr0=pr.find(r=>r.v[0]===o.ref); if(pr0){o.qty=o.qty||(+pr0.open>0.5?+pr0.open:pr0.v[12]);o.terms=o.terms||pr0.v[19];o.pod=o.pod||pr0.v[20];}
+    }catch(e){} }
+  const F=o.kind==='sale'?SF:PF;
+  $('#fields').innerHTML=F.map(([k,l])=>{const v=o[k]??'';const req=REQ[o.kind].includes(k);const bad=req&&(v===''||v==null);
+    if(k==='ref') return `<label style="grid-column:1/-1">${l} *<select data-k="ref">${REFS.map(r=>`<option value="${esc(r.v[0])}" ${r.v[0]===o.ref?'selected':''}>${esc(r.v[0])} · ${esc(r.v[9])} · ${esc(String(r.v[8]).split(' ')[0])}${+r.open>0.5?' · open '+fmtN(r.open,0)+' MT':''}</option>`).join('')}</select></label>`;
+    if(k==='purThrough'||k==='saleThrough') return `<label>${l}<select data-k="${k}">${ents.map(e=>`<option ${String(v).toUpperCase()===e?'selected':''}>${esc(e)}</option>`).join('')}</select></label>`;
+    return `<label ${['supplier','buyer','payment','grade'].includes(k)?'style="grid-column:1/-1"':''}>${l}${req?' *':''}<input data-k="${k}" value="${esc(v)}" style="${bad?'border-color:var(--bad)':''}"></label>`;}).join('');
+  $('#kind').innerHTML=`<span class="chip ${o.kind==='sale'?'acc':'ok'}">${o.kind==='sale'?'Sale → Sales sheet':'Purchase → Purchase sheet'}</span>`;
+  const got=REQ[o.kind].filter(k=>o[k]!=null&&o[k]!=='').length;
+  $('#readStatus').textContent=`${src}: ${got} of ${REQ[o.kind].length} required fields. Fix anything red, then write.`;$('#preview').hidden=false;$('#writeStatus').textContent='';
+}
+$('#readBtn').addEventListener('click',()=>{const t=$('#wa').value.trim();if(!t)return toast('Paste a message first');showParsed(parseMsg(t),'Format reader');});
+$('#readAI').addEventListener('click',async()=>{const t=$('#wa').value.trim();if(!t)return toast('Paste a message first');const b=$('#readAI');b.disabled=true;$('#readStatus').className='status';$('#readStatus').textContent='AI is reading…';
+  try{const o=await claude(`You read scrap-metal deal messages from traders (structured or messy, abbreviations, Hinglish). The company buys through entity codes like SG or DXB. If the message has both a purchase and a sale, return the purchase.
+Return ONLY JSON: {"kind":"purchase"|"sale","supplier":string|null,"buyer":string|null,"ref":string|null,"grade":string|null,"qty":number|null,"teus":number|null (number of 20' containers),"rate":number|null (per MT),"cuy":"USD"|"EUR"|"GBP"|"AED"|null,"ex":number|null (exchange rate to USD if given),"terms":"CFR"|"CIF"|"FOB"|"EXW"|"FCA"|null,"pod":string|null,"origin":string|null,"payment":string|null (written out),"purThrough":string|null,"saleThrough":string|null}
+Abbreviations: cntrs=containers, cnf=CFR, adv=advance, bal=balance, CAD=cash against documents, qasim=Port Qasim.\n\n"""${t.slice(0,4000)}"""`);
+    showParsed(o,'AI');}catch(e){$('#readStatus').className='status err';$('#readStatus').textContent=e.message;}finally{b.disabled=false;}});
+function edits(){$$('#fields [data-k]').forEach(i=>{const k=i.dataset.k;let v=i.value.trim();if(['qty','teus','rate','ex'].includes(k))v=v===''?null:+v.replace(/,/g,'');if(k==='cuy')v=v.toUpperCase();P[k]=v===''?null:v;});}
+$('#writeBtn').addEventListener('click',async()=>{
+  edits();const o=P;const miss=REQ[o.kind].filter(k=>o[k]==null||o[k]==='');if(o.kind==='purchase'&&o.cuy&&o.cuy!=='USD'&&!o.ex)miss.push('EX (exchange rate to USD)');if(miss.length)return $('#writeStatus').textContent='Fill: '+miss.join(', ');
+  const b=$('#writeBtn');b.disabled=true;$('#writeStatus').textContent='Writing…';
+  try{
+    if(o.kind==='purchase'){
+      const rows=await DB.rows(PUR);const row=await DB.firstEmpty(PUR);if(!row)throw new Error('Purchase sheet is full.');
+      const nums=rows.map(r=>String(r.v[0]).match(/^([A-Z]+-?)(\d+)$/)).filter(Boolean);const prefix=nums.length?nums[nums.length-1][1]:'CA-';const n=Math.max(0,...nums.map(m=>+m[2]))+1;const ref=prefix+n;
+      const g=gradeOf(o.grade);const teus=o.teus||Math.round(o.qty/25);
+      const v=new Array(PUR.cols.length).fill('');
+      const set=(c,x)=>v[ci(PUR,c)]=x??'';
+      set('Ref',ref);set('PUR_THROUGH',o.purThrough||'SG');set('Sale_Through',o.saleThrough||o.purThrough||'SG');set('Status','Open');set('ORIGIN',o.origin);set('Contract Date',toSerial(TODAY));
+      set('SUPPLIER CONTRACT NO',o.contractNo);set('SUPPLIER',o.supplier);set('GRADE',g?g.name:o.grade);set('Materials',g?g.mat:'');set('Teus',teus);set('QTY',o.qty);set('CUY',o.cuy||'USD');set('Rate',o.rate);set('EX',o.cuy&&o.cuy!=='USD'?o.ex:1);
+      set('AMOUNT',Math.round(o.qty*o.rate*100)/100);set('Terms',o.terms||'CFR');set('POD',o.pod);set('FPOD',o.pod);set('PAY TERMS',o.payment);
+      await DB.writeRow(PUR,row,v);$('#writeStatus').textContent=`Added ${ref} in Purchase row ${row}. AMOUNT = QTY × Rate (${o.cuy||'USD'}). Status Open.`;toast('Purchase row added');
+    } else {
+      const pr=(await DB.rows(PUR)).find(r=>r.v[0]===o.ref);if(!pr)throw new Error(`Ref ${o.ref} is not in the Purchase sheet.`);
+      const row=await DB.firstEmpty(SAL);if(!row)throw new Error('Sales sheet is full.');
+      const v=new Array(SAL.cols.length).fill('');const set=(c,x)=>v[ci(SAL,c)]=x??'';const P_=c=>pr.v[ci(PUR,c)];
+      set('Ref No',o.ref);set('PUR_THROUGH',P_('PUR_THROUGH'));set('Sale_Through',P_('Sale_Through'));set('Status','Open');set('ORIGIN',P_('ORIGIN'));set('Destination',COUNTRY_OF(o.pod||P_('POD')));set('DATE',toSerial(TODAY));
+      set('SCT NO.',o.sct);set('Buyer',o.buyer);set('GRADE',P_('GRADE'));set('ITEM',P_('Materials'));set('QTY',o.qty);set('Teus',P_('Teus')&&P_('QTY')?Math.max(1,Math.round(o.qty/P_('QTY')*P_('Teus'))):'');set('S.RATE',o.rate);set('Agent',o.agent);
+      set('Terms',o.terms||P_('Terms'));set('POD',o.pod||P_('POD'));set('FPOD',o.pod||P_('FPOD'));set('PMT_Terms',o.payment);
+      await DB.writeRow(SAL,row,v);
+      if(!P_('Buyer')) await DB.setCell('Purchase',`S${pr.row}`,o.buyer);
+      const fx=(!P_('CUY')||String(P_('CUY')).toUpperCase()==='USD')?1:(+P_('EX')||0);const margin=(o.rate-P_('Rate')*fx)*o.qty;
+      $('#writeStatus').textContent=`Added sale for ${o.ref} in Sales row ${row}. Margin about USD ${fmtN(margin,0)}${margin<0?' (loss)':''}.`;toast('Sales row added');
+    }
+  }catch(e){$('#writeStatus').textContent=sheetErr(e);}finally{b.disabled=false;}
+});
+
+
+/* ---------- copy row (works without Excel: paste into Excel or LibreOffice) ---------- */
+$('#copyBtn').addEventListener('click',async()=>{
+  edits();const o=P;const miss=REQ[o.kind].filter(k=>o[k]==null||o[k]==='');if(o.kind==='purchase'&&o.cuy&&o.cuy!=='USD'&&!o.ex)miss.push('EX (exchange rate to USD)');if(miss.length)return $('#writeStatus').textContent='Fill: '+miss.join(', ');
+  const d=TODAY,ds=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  let T,v;
+  if(o.kind==='purchase'){T=PUR;v=new Array(PUR.cols.length).fill('');const set=(c,x)=>v[ci(PUR,c)]=x??'';const g=gradeOf(o.grade);
+    set('Ref',o.ref||'');set('PUR_THROUGH',o.purThrough||'SG');set('Sale_Through',o.saleThrough||o.purThrough||'SG');set('Status','Open');set('ORIGIN',o.origin);set('Contract Date',ds);
+    set('SUPPLIER CONTRACT NO',o.contractNo);set('SUPPLIER',o.supplier);set('GRADE',g?g.name:o.grade);set('Materials',g?g.mat:'');set('Teus',o.teus||Math.round(o.qty/25));set('QTY',o.qty);set('CUY',o.cuy||'USD');set('Rate',o.rate);set('EX',o.cuy&&o.cuy!=='USD'?o.ex:1);
+    set('AMOUNT',Math.round(o.qty*o.rate*100)/100);set('Terms',o.terms||'CFR');set('POD',o.pod);set('FPOD',o.pod);set('PAY TERMS',o.payment);}
+  else{T=SAL;v=new Array(SAL.cols.length).fill('');const set=(c,x)=>v[ci(SAL,c)]=x??'';let pr=null;try{pr=(await DB.rows(PUR)).find(r=>r.v[0]===o.ref);}catch(_){}
+    const P_=c=>pr?pr.v[ci(PUR,c)]:'';
+    set('Ref No',o.ref);set('PUR_THROUGH',P_('PUR_THROUGH'));set('Sale_Through',P_('Sale_Through'));set('Status','Open');set('ORIGIN',P_('ORIGIN'));set('Destination',COUNTRY_OF(o.pod||P_('POD')));set('DATE',ds);
+    set('SCT NO.',o.sct);set('Buyer',o.buyer);set('GRADE',P_('GRADE'));set('ITEM',P_('Materials'));set('QTY',o.qty);set('Teus',o.teus||(P_('Teus')&&P_('QTY')?Math.max(1,Math.round(o.qty/P_('QTY')*P_('Teus'))):''));set('S.RATE',o.rate);set('Agent',o.agent);
+    set('Terms',o.terms||P_('Terms'));set('POD',o.pod||P_('POD'));set('FPOD',o.pod||P_('FPOD'));set('PMT_Terms',o.payment);}
+  const tsv=v.map(x=>String(x??'').replace(/[\t\n]/g,' ')).join('\t');
+  try{await navigator.clipboard.writeText(tsv);}catch(_){const ta=document.createElement('textarea');ta.value=tsv;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
+  $('#writeStatus').textContent=`Copied. In the ${T.sheet} sheet click column A of the first empty row and paste${o.kind==='purchase'&&!o.ref?', then type the Ref in column A':''}.`;toast('Row copied');
+});
+
+/* ============ REFS (shared) ============ */
+let PROWS=[],SROWS=[];
+async function loadRefs(){try{PROWS=await DB.rows(PUR);SROWS=await DB.rows(SAL);}catch(e){toast(sheetErr(e));return;}
+  const opts=PROWS.map(r=>`<option value="${esc(r.v[0])}">${esc(r.v[0])} · ${esc(r.v[9])} · ${esc(String(r.v[8]).split(' ')[0])}</option>`).join('');
+  for(const s of ['#ctRef','#payRef']){const p=$(s).value;$(s).innerHTML=opts;if(p)$(s).value=p;}
+  const p=$('#ckRef').value;$('#ckRef').innerHTML='<option value="">Find automatically</option>'+opts;$('#ckRef').value=p;
+  ctInfo();payInfo();}
+
+/* ============ CONTRACT ============ */
+function ctInfo(){const ref=$('#ctRef').value,side=$('#ctSide').value;const r=side==='Purchase'?PROWS.find(x=>x.v[0]===ref):SROWS.find(x=>x.v[0]===ref);
+  if(!r){$('#ctInfo').textContent=side==='Sales'?'No sale recorded for this Ref yet.':'';$('#ctOpen').disabled=side==='Sales';return;} $('#ctOpen').disabled=false;
+  const q=r.v[12],rate=r.v[14],cur=side==='Purchase'?(r.v[13]||'USD'):'USD';
+  $('#ctInfo').textContent=`${side==='Purchase'?r.v[8]:r.v[9]} · ${fmtN(q,2)} MT × ${cur} ${fmtN(rate,2)} = ${cur} ${fmtN(q*rate)}${side==='Purchase'&&r.v[16]!==''&&Math.abs(r.v[16]-q*rate)>1?` (sheet AMOUNT says ${fmtN(r.v[16])})`:''}`;}
+$('#ctRef').addEventListener('change',ctInfo);$('#ctSide').addEventListener('change',ctInfo);
+$('#ctOpen').addEventListener('click',async()=>{try{await DB.openContract($('#ctRef').value,$('#ctSide').value);$('#ctStatus').textContent='Contract sheet filled. Print or save as PDF from Excel.';}catch(e){$('#ctStatus').textContent=sheetErr(e);}});
+
+/* ============ CHECK PDF ============ */
+async function readPdf(file){if(!window.pdfjsLib)throw new Error('PDF reader did not load (no internet?).');try{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}catch(_){}
+  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const pages=[];
+  for(let i=1;i<=doc.numPages;i++){const p=await doc.getPage(i);const vp=p.getViewport({scale:1});const tc=await p.getTextContent();pages.push(DC.layoutFromItems(tc.items,vp.width));}return pages.join('\n\n');}
+// contract-shaped object from a sheet row, for comparing a BL or contract with the deal
+function rowAsContract(ref){const s=SROWS.find(x=>x.v[0]===ref),p=PROWS.find(x=>x.v[0]===ref);if(!p&&!s)return null;const r=s||p,isS=!!s;
+  return {currency:isS?'USD':String(r.v[13]||'USD').toUpperCase(),no:isS?r.v[8]:r.v[7],ref,kind:isS?'sales':'purchase',qty:+r.v[12]||null,rate:+r.v[14]||null,containers:+(isS?r.v[13]:r.v[11])||null,boxSize:'20',tolPct:10,incoterm:String(isS?r.v[16]:r.v[19]).replace(/CNF|C&F/i,'CFR').toUpperCase(),port:isS?r.v[17]:r.v[20],freeDays:null,f:{payment:isS?r.v[19]:r.v[22],hs:''},grade:isS?r.v[10]:r.v[9],party:isS?r.v[9]:r.v[8],sheet:isS?'Sales':'Purchase',row:r.row};}
+function compareContractToRow(c,rc){const R=[];const add=(st,t,d,fix)=>R.push({st,t,d,fix});const N=DC.N;
+  const near=(a,b)=>a!=null&&b!=null&&Math.abs(a-b)<=Math.max(0.01,Math.abs(b)*0.001);
+  if(c.qty!=null&&rc.qty!=null) near(c.qty,rc.qty)?add('pass','Quantity matches the sheet',`${rc.qty} MT`):add('fail','Quantity differs from the sheet',`Contract ${c.qty} MT; ${rc.sheet} row ${rc.row}: ${rc.qty} MT.`,`Quantity: contract says ${c.qty} MT, our record says ${rc.qty} MT.`);
+  if(c.currency&&rc.currency&&c.currency.replace('US$','USD')!==rc.currency) add('fail','Currency differs from the sheet',`Contract ${c.currency}; sheet ${rc.currency}.`,`Currency: contract says ${c.currency}, agreed currency is ${rc.currency}.`);
+  else if(c.rate!=null&&rc.rate!=null) near(c.rate,rc.rate)?add('pass','Rate matches the sheet',`USD ${rc.rate}`):add('fail','Rate differs from the sheet',`Contract USD ${c.rate}; ${rc.sheet} row ${rc.row}: USD ${rc.rate}.`,`Rate: contract says USD ${c.rate}, agreed rate is USD ${rc.rate}.`);
+  if(c.containers&&rc.containers&&c.containers!==rc.containers) add('warn','Containers differ from the sheet',`Contract ${c.containers}; sheet Teus ${rc.containers}.`);
+  if(c.port&&rc.port&&!N(c.port).includes(N(rc.port).slice(0,6))) add('fail','Port differs from the sheet',`Contract ${c.port}; sheet POD ${rc.port}.`,`Port: should be ${String(rc.port).toUpperCase()}.`);
+  if(c.incoterm&&rc.incoterm&&c.incoterm!==rc.incoterm) add('fail','Incoterm differs from the sheet',`Contract ${c.incoterm}; sheet ${rc.incoterm}.`);
+  const party=c.counterparty&&c.counterparty.name; if(party&&rc.party&&!N(party).includes(N(rc.party).slice(0,8))&&!N(rc.party).includes(N(party).slice(0,8))) add('warn','Counterparty name differs from the sheet',`Contract "${party}"; sheet "${rc.party}".`);
+  return R;}
+let LAST=null;
+async function checkFile(file){
+  $('#ckStatus').textContent='Reading '+file.name+'…';
+  try{ if(!PROWS.length) await loadRefs(); const text=await readPdf(file); LAST={text,name:file.name}; runCheck(); }catch(e){$('#ckStatus').textContent=sheetErr(e);}
+}
+function runCheck(){
+  if(!LAST)return; const {text,name}=LAST; const isContract=/(PURCHASE|SALES?) CONTRACT/i.test(text);
+  if(text.replace(/\s/g,'').length<200){$('#ckStatus').textContent='Very little text in this PDF (probably a scan). Use a text PDF, or add AI in Settings.';return;}
+  let R=[],title='',ref=$('#ckRef').value, rc=null, sendTo='';
+  if(isContract){ const c=DC.parseContract(text);
+    if(!ref){ const byNo=[...PROWS.map(r=>({r,no:r.v[7]})),...SROWS.map(r=>({r,no:r.v[8]}))].find(x=>x.no&&DC.N(x.no)===DC.N(c.no)); ref=byNo?byNo.r.v[0]:(c.ourRef&&PROWS.some(r=>r.v[0]===c.ourRef.toUpperCase())?c.ourRef.toUpperCase():''); }
+    rc=ref?rowAsContract(ref):null; if(rc&&c.kind==='purchase'){const p=PROWS.find(x=>x.v[0]===ref);rc={...rowAsContract(ref),...(p?{currency:String(p.v[13]||'USD').toUpperCase(),no:p.v[7],qty:+p.v[12],rate:+p.v[14],containers:+p.v[11],port:p.v[20],incoterm:String(p.v[19]).toUpperCase().replace('CNF','CFR'),party:p.v[8],sheet:'Purchase',row:p.row}:{})};}
+    R=[...(rc?compareContractToRow(c,rc):[]),...DC.checkContract(c,[c])]; title=`${c.kind==='sales'?'Sales':'Purchase'} contract ${c.no||''}`; sendTo=c.counterparty?c.counterparty.name:'';
+  } else { const b=DC.parseBL(text); rc=ref?rowAsContract(ref):null;
+    if(!rc){ // guess by quantity
+      const cand=[...SROWS,...PROWS].map(r=>r.v[0]).filter((v,i,a)=>a.indexOf(v)===i).map(rowAsContract).filter(x=>x&&b.netMT&&x.qty&&Math.abs(x.qty-b.netMT)/x.qty<=0.1);
+      if(cand.length===1){rc=cand[0];ref=rc.ref;} }
+    R=DC.checkBL(b,rc); title=`${b.waybill?'Sea waybill':'Bill of lading'} ${b.blno||''}`; sendTo=(b.shipper.split('\n')[0]||'Shipper').replace(/,$/,'');
+  }
+  R.sort((a,c)=>({fail:0,warn:1,pass:2}[a.st]-{fail:0,warn:1,pass:2}[c.st]));
+  const f=R.filter(r=>r.st==='fail').length,w=R.filter(r=>r.st==='warn').length;
+  $('#ckTitle').textContent=title;$('#ckSum').innerHTML=`${f?`<span class="chip bad">${f} to fix</span> `:''}${w?`<span class="chip warn">${w} to review</span> `:''}<span class="chip ok">${R.length-f-w} ok</span>`;
+  $('#ckList').innerHTML=R.map(r=>`<div class="check ${r.st}"><i>${r.st==='pass'?'✓':r.st==='fail'?'✕':'!'}</i><div><b>${esc(r.t)}</b>${r.d?`<span>${esc(r.d)}</span>`:''}</div></div>`).join('');
+  $('#ckRes').hidden=false; $('#ckStatus').textContent=`${name}: ${rc?`compared with ${rc.sheet} row ${rc.row} (Ref ${rc.ref})`:'no matching row found. Pick the Ref to compare.'}`;
+  const fx=R.filter(r=>r.st!=='pass'&&r.fix);$('#ckMailC').hidden=!fx.length;
+  $('#ckMail').textContent=`Subject: ${title} – corrections needed${ref?' (our ref '+ref+')':''}\n\nDear ${sendTo} team,\n\nPlease correct the following:\n\n${fx.map((r,i)=>`${i+1}. ${r.fix}`).join('\n')}\n\nPlease send the revised draft for approval.\n\nRegards`;
+}
+const dz=$('#drop');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('over');}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('over');}));
+dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)checkFile(f);});
+$('#file').addEventListener('change',e=>{const f=e.target.files[0];if(f)checkFile(f);e.target.value='';});
+$('#ckRef').addEventListener('change',runCheck);
+$('#ckCopy').addEventListener('click',()=>copy($('#ckMail').textContent));
+
+/* ============ PAYMENT ============ */
+$('#payDate').value=new Date(TODAY.getTime()-TODAY.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+async function payInfo(){const ref=$('#payRef').value;const p=PROWS.find(r=>r.v[0]===ref);if(!p){$('#payInfo').textContent='';return;}const rec=$('#payDir').value==='Received from buyer';
+  const sales=SROWS.filter(r=>r.v[0]===ref);const total=rec?sales.reduce((a,r)=>a+r.v[12]*r.v[14],0):(p.v[16]!==''?+p.v[16]:p.v[12]*p.v[14]);let paid=0;try{paid=await DB.paid(ref,$('#payDir').value);}catch(_){}
+  const cur=rec?'USD':(p.v[13]||'USD');
+  $('#payInfo').textContent=rec?(sales.length?`${sales.map(s=>s.v[9]).filter((v,i,a)=>a.indexOf(v)===i).join(', ')} owes USD ${fmtN(total-paid)} of ${fmtN(total)}.`:'No sale recorded for this Ref yet.'):`We owe ${p.v[8]} ${cur} ${fmtN(total-paid)} of ${fmtN(total)}. Log the amount in ${cur}.`;}
+$('#payRef').addEventListener('change',payInfo);$('#payDir').addEventListener('change',payInfo);
+$('#payBtn').addEventListener('click',async()=>{const amt=+$('#payAmt').value;if(!$('#payRef').value||!(amt>0))return $('#payStatus').textContent='Pick a Ref and enter an amount.';
+  const [y,m,d]=$('#payDate').value.split('-').map(Number);
+  try{const row=await DB.addPayment({date:toSerial(new Date(y,m-1,d)),ref:$('#payRef').value,dir:$('#payDir').value,amt,bank:$('#payBank').value.trim()});$('#payStatus').textContent=`Added in Payments row ${row}.`;$('#payAmt').value='';$('#payBank').value='';payInfo();toast('Payment logged');}catch(e){$('#payStatus').textContent=sheetErr(e);}});
+
+/* ============ ISSUES ============ */
+async function loadIssues(){$('#isList').innerHTML='<p class="help">Loading…</p>';
+  try{const p=await DB.rows(PUR),s=await DB.rows(SAL);
+    const L=[...p.filter(r=>r.check&&r.check!=='OK').map(r=>({sheet:'Purchase',r,who:r.v[8]})),...s.filter(r=>r.check&&r.check!=='OK').map(r=>({sheet:'Sales',r,who:r.v[9]}))];
+    $('#issueCount').hidden=!L.length;$('#issueCount').textContent=L.length;
+    $('#isList').innerHTML=L.length?L.map((x,i)=>`<div class="issue"><div class="row"><span class="chip ${x.sheet==='Sales'?'acc':''}">${x.sheet}</span><b>${esc(x.r.v[0])}</b><span class="help">${esc(x.who)}</span></div><div class="m">${esc(String(x.r.check).replace(/;\s*$/,'').split(/;\s*/).join(' · '))}</div><div><button class="btn small" data-go="${i}">Show row</button></div></div>`).join(''):'<p class="help">Nothing to check. All rows are OK.</p>';
+    $$('[data-go]').forEach(b=>b.addEventListener('click',()=>{const x=L[+b.dataset.go];DB.select(x.sheet,`A${x.r.row}:${x.sheet==='Purchase'?'AH':'AB'}${x.r.row}`).catch(e=>toast(sheetErr(e)));}));
+  }catch(e){$('#isList').innerHTML=`<p class="status err">${esc(sheetErr(e))}</p>`;}}
+$('#isRefresh').addEventListener('click',loadIssues);
+
+/* ============ SETTINGS ============ */
+$('#apiKey').value=store('sd_key')||'';$('#model').value=store('sd_model')||DEFAULT_MODEL;
+$('#saveSet').addEventListener('click',()=>{store('sd_key',$('#apiKey').value.trim());store('sd_model',$('#model').value.trim()||DEFAULT_MODEL);$('#setStatus').textContent='Saved on this computer.';});
+
+/* ---------- start ---------- */
+let started=false;function start(){if(started)return;started=true;$('#wa').value=SAMPLES.p;loadIssues();}
+if(window.Office&&Office.onReady){Office.onReady(info=>{LIVE=!!(info&&info.host===Office.HostType.Excel);$('#mode').textContent=LIVE?'Connected to workbook':'Preview mode';$('#mode').classList.toggle('live',LIVE);start();});setTimeout(start,3000);}else start();
+})();
+</script>
+</body>
+</html>

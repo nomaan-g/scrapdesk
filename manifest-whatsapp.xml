@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ScrapDesk WhatsApp: only the WhatsApp message to Purchase/Sales row panel. Hosted at https://nomaan-g.github.io/scrapdesk/whatsapp.html -->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides"
+           xsi:type="TaskPaneApp">
+  <Id>2e63fc3a-c163-4be0-8608-53b885a2005f</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>ScrapDesk</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="ScrapDesk WhatsApp"/>
+  <Description DefaultValue="Paste a WhatsApp deal message and turn it into a Purchase or Sales row."/>
+  <IconUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-64.png"/>
+  <SupportUrl DefaultValue="https://nomaan-g.github.io/scrapdesk/"/>
+  <AppDomains>
+    <AppDomain>https://api.anthropic.com</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook"/>
+  </Hosts>
+  <Requirements>
+    <Sets DefaultMinVersion="1.1">
+      <Set Name="ExcelApi" MinVersion="1.7"/>
+    </Sets>
+  </Requirements>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://nomaan-g.github.io/scrapdesk/whatsapp.html"/>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title resid="GetStarted.Title"/>
+            <Description resid="GetStarted.Description"/>
+            <LearnMoreUrl resid="Taskpane.Url"/>
+          </GetStarted>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <OfficeTab id="TabHome">
+              <Group id="ScrapDeskWA.Group">
+                <Label resid="Group.Label"/>
+                <Icon>
+                  <bt:Image size="16" resid="Icon.16"/>
+                  <bt:Image size="32" resid="Icon.32"/>
+                  <bt:Image size="80" resid="Icon.80"/>
+                </Icon>
+                <Control xsi:type="Button" id="ScrapDeskWA.Open">
+                  <Label resid="Button.Label"/>
+                  <Supertip>
+                    <Title resid="Button.Label"/>
+                    <Description resid="Button.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16"/>
+                    <bt:Image size="32" resid="Icon.32"/>
+                    <bt:Image size="80" resid="Icon.80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ScrapDeskWAPane</TaskpaneId>
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-16.png"/>
+        <bt:Image id="Icon.32" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-32.png"/>
+        <bt:Image id="Icon.80" DefaultValue="https://nomaan-g.github.io/scrapdesk/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://nomaan-g.github.io/scrapdesk/whatsapp.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="ScrapDesk WhatsApp is ready"/>
+        <bt:String id="Group.Label" DefaultValue="WhatsApp deal"/>
+        <bt:String id="Button.Label" DefaultValue="WhatsApp deal"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Open the trading workbook, then click WhatsApp deal on the Home tab."/>
+        <bt:String id="Button.Tooltip" DefaultValue="Paste a WhatsApp deal message and write it as a Purchase or Sales row."/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>
