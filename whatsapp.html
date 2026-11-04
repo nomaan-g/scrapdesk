@@ -234,12 +234,13 @@ async function showParsed(o,src){
   o.kind=o.kind||(o.buyer&&!o.supplier?'sale':'purchase');if(o.kind==='purchase'){o.cuy=(o.cuy||'USD').toUpperCase();if(o.cuy==='USD')o.ex=o.ex||1;}P=o;
   const g=gradeOf(o.grade);if(g)o.grade=g.name;
   let ents=['SG','DXB'];try{ents=await DB.entities();}catch(_){}
-  if(o.kind==='sale'){ try{const pr=await DB.rows(PUR); REFS=pr;
+  if(o.kind==='sale'){ REFS=[]; try{const pr=await DB.rows(PUR); REFS=pr;
       if(!o.ref){const m=pr.filter(r=>+r.open>0.5||r.v[ci(PUR,'Buyer')]==='');const k=(o.grade||'')+' '+(o.supplier||'');const hit=m.find(r=>o.supplier&&String(r.v[8]).toLowerCase().includes(o.supplier.toLowerCase().split(' ')[0]))||m.find(r=>gradeOf(k)&&gradeOf(k).name===r.v[9])||m[0];if(hit)o.ref=hit.v[0];}
       const pr0=pr.find(r=>r.v[0]===o.ref); if(pr0){o.qty=o.qty||(+pr0.open>0.5?+pr0.open:pr0.v[12]);o.terms=o.terms||pr0.v[19];o.pod=o.pod||pr0.v[20];}
     }catch(e){} }
   const F=o.kind==='sale'?SF:PF;
   $('#fields').innerHTML=F.map(([k,l])=>{const v=o[k]??'';const req=REQ[o.kind].includes(k);const bad=req&&(v===''||v==null);
+    if(k==='ref'&&!REFS.length) return `<label style="grid-column:1/-1">${l} *<input data-k="ref" value="${esc(v)}" placeholder="e.g. CA-701" style="${bad?'border-color:var(--bad)':''}"></label>`;
     if(k==='ref') return `<label style="grid-column:1/-1">${l} *<select data-k="ref">${REFS.map(r=>`<option value="${esc(r.v[0])}" ${r.v[0]===o.ref?'selected':''}>${esc(r.v[0])} · ${esc(r.v[9])} · ${esc(String(r.v[8]).split(' ')[0])}${+r.open>0.5?' · open '+fmtN(r.open,0)+' MT':''}</option>`).join('')}</select></label>`;
     if(k==='purThrough'||k==='saleThrough') return `<label>${l}<select data-k="${k}">${ents.map(e=>`<option ${String(v).toUpperCase()===e?'selected':''}>${esc(e)}</option>`).join('')}</select></label>`;
     return `<label ${['supplier','buyer','payment','grade'].includes(k)?'style="grid-column:1/-1"':''}>${l}${req?' *':''}<input data-k="${k}" value="${esc(v)}" style="${bad?'border-color:var(--bad)':''}"></label>`;}).join('');
